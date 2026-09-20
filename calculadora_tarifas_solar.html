@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Tarifas Solar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #0d0f0e;
+    --bg2: #141614;
+    --bg3: #1a1d1a;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #e8ebe6;
+    --text2: #8a9088;
+    --text3: #5a5e58;
+    --green: #7dde8a;
+    --green-dim: rgba(125,222,138,0.12);
+    --green-border: rgba(125,222,138,0.3);
+    --amber: #f5c842;
+    --amber-dim: rgba(245,200,66,0.1);
+    --red: #f07070;
+    --red-dim: rgba(240,112,112,0.1);
+    --red-border: rgba(240,112,112,0.3);
+    --blue: #7eb8f5;
+    --blue-dim: rgba(126,184,245,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .header-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--green);
+  }
+
+  .header-sub {
+    color: var(--text2);
+    font-size: 15px;
+    margin-top: 10px;
+    font-weight: 400;
+  }
+
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 680px) {
+    .main { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .panel.full { grid-column: 1 / -1; }
+
+  .panel-title {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-title::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  /* TUS DATOS */
+  .tus-datos-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .dato-box {
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .dato-lbl {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .dato-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  .dato-unit {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 400;
+  }
+
+  /* FORMULARIO OFERTA */
+  .oferta-section { margin-bottom: 20px; }
+
+  .oferta-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .oferta-section-title .num {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .field-group {
+    display: grid;
+    gap: 8px;
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .field label {
+    font-size: 12px;
+    color: var(--text2);
+    min-width: 120px;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .field input[type="number"] {
+    flex: 1;
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  .field input[type="number"]::-webkit-inner-spin-button,
+  .field input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .field input[type="number"]:focus { border-color: var(--green); }
+
+  .field-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    min-width: 60px;
+    flex-shrink: 0;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .toggle-label {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .toggle {
+    position: relative;
+    width: 40px; height: 22px;
+    flex-shrink: 0;
+  }
+
+  .toggle input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    border-radius: 11px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    left: 3px; top: 3px;
+    background: var(--text3);
+    border-radius: 50%;
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .toggle input:checked + .toggle-slider { background: var(--green-dim); border-color: var(--green-border); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--green); }
+
+  .dh-fields { display: none; margin-top: 8px; }
+  .dh-fields.visible { display: grid; gap: 8px; }
+
+  .calcular-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--green);
+    color: #0d0f0e;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    margin-top: 16px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .calcular-btn:hover { opacity: 0.9; }
+  .calcular-btn:active { transform: scale(0.98); }
+
+  .nombre-field {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .nombre-field input[type="text"] {
+    flex: 1;
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .nombre-field input[type="text"]:focus { border-color: var(--green); }
+  .nombre-field input[type="text"]::placeholder { color: var(--text3); }
+
+  /* RESULTADOS */
+  .results-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+  }
+
+  .results-empty .icon { font-size: 32px; margin-bottom: 10px; display: block; opacity: 0.4; }
+
+  .result-card {
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.3s ease;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .result-card:hover { border-color: var(--border2); }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-card.winner { border-color: var(--green-border); background: var(--green-dim); }
+  .result-card.danger { border-color: var(--red-border); opacity: 0.7; }
+
+  .result-pos {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    min-width: 28px;
+    color: var(--text3);
+  }
+  .result-pos.gold { color: var(--amber); }
+
+  .result-name { flex: 1; }
+  .result-name-text { font-size: 13px; font-weight: 600; color: var(--text); }
+  .result-why { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+  .result-price { text-align: right; }
+  .result-anual { font-size: 16px; font-weight: 700; }
+  .result-anual.green { color: var(--green); }
+  .result-anual.red   { color: var(--red); }
+  .result-mes { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+
+  .result-diff {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 6px;
+    border-radius: 99px;
+    margin-top: 3px;
+    display: inline-block;
+  }
+  .result-diff.green { background: var(--green-dim); color: var(--green); }
+  .result-diff.red   { background: var(--red-dim); color: var(--red); }
+  .result-diff.amber { background: var(--amber-dim); color: var(--amber); }
+
+  /* DESGLOSE */
+  .desglose {
+    display: none;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+  }
+  .desglose.open { display: block; }
+  .desglose-row { display: flex; justify-content: space-between; padding: 3px 0; color: var(--text2); border-bottom: 0.5px solid var(--border); }
+  .desglose-row:last-child { border: none; font-weight: 500; color: var(--text); padding-top: 6px; }
+  .desglose-row .pos { color: var(--red); }
+  .desglose-row .neg { color: var(--green); }
+
+  /* ALERTA */
+  .alerta-box {
+    background: var(--red-dim);
+    border: 0.5px solid var(--red-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--red);
+    font-family: 'DM Mono', monospace;
+    margin-top: 10px;
+    display: none;
+  }
+  .alerta-box.show { display: block; }
+
+  /* SEPARADOR ranking */
+  .rank-separator {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    text-align: center;
+    padding: 6px 0 10px;
+    letter-spacing: 0.1em;
+  }
+
+  /* TOOLTIP potencia */
+  .tip {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    margin-top: 4px;
+    padding: 4px 8px;
+    background: var(--bg);
+    border-radius: 6px;
+    border: 0.5px solid var(--border);
+  }
+
+  .clear-btn {
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    color: var(--text2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: color 0.2s;
+    margin-top: 10px;
+    width: 100%;
+  }
+  .clear-btn:hover { color: var(--red); border-color: var(--red-border); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-tag">☀ Autoconsumo Solar · San Fernando</span>
+  <h1>Calculadora de<br><em>Tarifas Eléctricas</em></h1>
+  <p class="header-sub">Introduce los precios de cualquier oferta y compara al instante</p>
+</div>
+
+<div class="main">
+
+  <!-- TUS DATOS REALES -->
+  <div class="panel">
+    <div class="panel-title">Tus datos reales (2025)</div>
+    <div class="tus-datos-grid">
+      <div class="dato-box">
+        <div class="dato-lbl">Comprado a red</div>
+        <div class="dato-val">2.122 <span class="dato-unit">kWh/año</span></div>
+      </div>
+      <div class="dato-box">
+        <div class="dato-lbl">Excedentes</div>
+        <div class="dato-val">3.776 <span class="dato-unit">kWh/año</span></div>
+      </div>
+      <div class="dato-box">
+        <div class="dato-lbl">Potencia P1</div>
+        <div class="dato-val">3,45 <span class="dato-unit">kW</span></div>
+      </div>
+      <div class="dato-box">
+        <div class="dato-lbl">Potencia P2</div>
+        <div class="dato-val">3,45 <span class="dato-unit">kW</span></div>
+      </div>
+    </div>
+    <div class="tip" style="margin-top:12px">⚠ Consumo nocturno fijo (trabajo) · No hay desplazamiento de carga posible</div>
+  </div>
+
+  <!-- FORMULARIO -->
+  <div class="panel">
+    <div class="panel-title">Nueva oferta a calcular</div>
+
+    <div class="nombre-field">
+      <input type="text" id="nombre" placeholder="Nombre comercializadora (ej: Iberdrola)">
+    </div>
+
+    <!-- 1. kWh -->
+    <div class="oferta-section">
+      <div class="oferta-section-title"><span class="num">1</span> Precio energía (kWh)</div>
+      <div class="toggle-row" style="margin-bottom:10px">
+        <label class="toggle">
+          <input type="checkbox" id="dh-toggle" onchange="toggleDH()">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">¿Tiene discriminación horaria?</span>
+      </div>
+      <!-- precio único -->
+      <div id="precio-unico" class="field-group">
+        <div class="field">
+          <label>Precio único</label>
+          <input type="number" id="kwh-unico" step="0.0001" min="0" placeholder="0.1099">
+          <span class="field-unit">€/kWh</span>
+        </div>
+      </div>
+      <!-- precios DH -->
+      <div id="precio-dh" class="dh-fields">
+        <div class="field">
+          <label>Punta (P1)</label>
+          <input type="number" id="kwh-punta" step="0.0001" min="0" placeholder="0.245">
+          <span class="field-unit">€/kWh</span>
+        </div>
+        <div class="field">
+          <label>Llano (P2)</label>
+          <input type="number" id="kwh-llano" step="0.0001" min="0" placeholder="0.155">
+          <span class="field-unit">€/kWh</span>
+        </div>
+        <div class="field">
+          <label>Valle (P3)</label>
+          <input type="number" id="kwh-valle" step="0.0001" min="0" placeholder="0.130">
+          <span class="field-unit">€/kWh</span>
+        </div>
+        <div class="tip">Distribución real de tu consumo: 25,5% punta · 37,5% llano · 37% valle</div>
+      </div>
+    </div>
+
+    <!-- 2. Potencia -->
+    <div class="oferta-section">
+      <div class="oferta-section-title"><span class="num">2</span> Término de potencia</div>
+      <div class="toggle-row" style="margin-bottom:10px">
+        <label class="toggle">
+          <input type="checkbox" id="pot-toggle" onchange="togglePot()">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">¿Precio distinto P1 y P2?</span>
+      </div>
+      <div id="pot-unica" class="field-group">
+        <div class="field">
+          <label>Precio único</label>
+          <input type="number" id="pot-unico" step="0.0001" min="0" placeholder="0.075">
+          <span class="field-unit">€/kW·día</span>
+        </div>
+      </div>
+      <div id="pot-dos" class="dh-fields">
+        <div class="field">
+          <label>Potencia P1</label>
+          <input type="number" id="pot-p1" step="0.0001" min="0" placeholder="0.1103">
+          <span class="field-unit">€/kW·día</span>
+        </div>
+        <div class="field">
+          <label>Potencia P2</label>
+          <input type="number" id="pot-p2" step="0.0001" min="0" placeholder="0.0335">
+          <span class="field-unit">€/kW·día</span>
+        </div>
+      </div>
+      <div class="tip">Referencia regulada Naturgy: P1=0,1103 + P2=0,0335 = 181 €/año total</div>
+    </div>
+
+    <!-- 3. Excedente -->
+    <div class="oferta-section">
+      <div class="oferta-section-title"><span class="num">3</span> Precio excedente</div>
+      <div class="field-group">
+        <div class="field">
+          <label>Excedente</label>
+          <input type="number" id="excedente" step="0.001" min="0" placeholder="0.070">
+          <span class="field-unit">€/kWh</span>
+        </div>
+      </div>
+      <div class="tip">Referencia: 0,07 €/kWh = 264 €/año · cada céntimo menos = −38 €/año</div>
+    </div>
+
+    <!-- 4. Batería virtual -->
+    <div class="oferta-section">
+      <div class="oferta-section-title"><span class="num">4</span> Batería virtual</div>
+      <div class="toggle-row">
+        <label class="toggle">
+          <input type="checkbox" id="bat-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">¿Incluye batería virtual?</span>
+      </div>
+      <div class="tip" style="margin-top:8px">La batería virtual vale 79 €/año para tu perfil</div>
+    </div>
+
+    <button class="calcular-btn" onclick="calcular()">Calcular y comparar →</button>
+  </div>
+
+  <!-- RESULTADOS -->
+  <div class="panel full" id="results-panel">
+    <div class="panel-title">Ranking de ofertas</div>
+    <div class="results-empty" id="empty-state">
+      <span class="icon">⚡</span>
+      Introduce una oferta y pulsa calcular<br>para verla aquí comparada con las demás
+    </div>
+    <div id="ranking-container"></div>
+    <button class="clear-btn" id="clear-btn" style="display:none" onclick="clearAll()">Limpiar todas las ofertas</button>
+  </div>
+
+</div>
+
+<script>
+// Datos reales del usuario
+const KWH_ANUAL = 2122;
+const EXCEDENTES = 3776;
+const DIAS = 365;
+const P1_KW = 3.45;
+const P2_KW = 3.45;
+const BONO = 0.019121;
+const ALQUILER = 0.026630;
+const OTROS = (BONO + ALQUILER) * DIAS;
+// Distribución DH real del CSV
+const PCT_PUNTA = 0.255;
+const PCT_LLANO = 0.375;
+const PCT_VALLE = 0.370;
+// Batería virtual
+const BAT_VIRTUAL_VAL = 79;
+
+// Ofertas predefinidas (las ya analizadas)
+let ofertas = [
+  { nombre: 'Naturgy actual 2026', kwh: 0.144972, dh: false, pot_unica: false, pot_p1: 0.110283, pot_p2: 0.033469, exc: 0.07, bat: true, predefinida: true },
+  { nombre: 'Naturgy oferta', kwh: 0.1449, dh: false, pot_unica: false, pot_p1: 0.1102, pot_p2: 0.033, exc: 0.07, bat: true, predefinida: true },
+  { nombre: 'TotalEnergies (pot.0,075)', kwh: 0.1099, dh: false, pot_unica: true, pot_unico: 0.075, exc: 0.07, bat: false, predefinida: true },
+  { nombre: 'Repsol Solar Fijo', kwh: 0.1299, dh: false, pot_unica: true, pot_unico: 0.0819, exc: 0.06, bat: false, predefinida: true },
+  { nombre: 'Holaluz variable + bat.virtual', kwh: 0.141, dh: false, pot_unica: true, pot_unico: 0.082, exc: 0.06, bat: true, predefinida: true },
+  { nombre: 'Endesa oferta', kwh: 0.148828, dh: false, pot_unica: true, pot_unico: 2.7444/30.4375, exc: 0.06, bat: false, predefinida: true },
+  { nombre: 'Octopus DH', kwh: null, dh: true, kwh_punta: 0.245, kwh_llano: 0.155, kwh_valle: 0.13, pot_unica: false, pot_p1: 0.097, pot_p2: 0.030, exc: 0.035, bat: false, predefinida: true },
+  { nombre: 'Naturgy plana 58€', fija: true, coste_fijo: 696, bat: false, predefinida: true },
+];
+
+function calcularCoste(o) {
+  if (o.fija) return o.coste_fijo;
+  let energia;
+  if (o.dh) {
+    energia = KWH_ANUAL * PCT_PUNTA * o.kwh_punta +
+              KWH_ANUAL * PCT_LLANO * o.kwh_llano +
+              KWH_ANUAL * PCT_VALLE * o.kwh_valle;
+  } else {
+    energia = KWH_ANUAL * o.kwh;
+  }
+  const exc = EXCEDENTES * o.exc;
+  let pot;
+  if (o.pot_unica) {
+    pot = (P1_KW + P2_KW) * DIAS * o.pot_unico;
+  } else {
+    pot = P1_KW * DIAS * o.pot_p1 + P2_KW * DIAS * o.pot_p2;
+  }
+  const sub = energia - exc + pot + OTROS;
+  const imp = sub * 0.05112696;
+  const iva = (sub + imp) * 0.21;
+  const factura = sub + imp + iva;
+  const real = o.bat ? factura - BAT_VIRTUAL_VAL : factura;
+  return real;
+}
+
+function calcularDesglose(o) {
+  if (o.fija) return { energia: o.coste_fijo, exc: 0, pot: 0, otros: 0, imp: 0, iva: 0, factura: o.coste_fijo, real: o.coste_fijo };
+  let energia;
+  if (o.dh) {
+    energia = KWH_ANUAL * PCT_PUNTA * o.kwh_punta +
+              KWH_ANUAL * PCT_LLANO * o.kwh_llano +
+              KWH_ANUAL * PCT_VALLE * o.kwh_valle;
+  } else {
+    energia = KWH_ANUAL * o.kwh;
+  }
+  const exc = EXCEDENTES * o.exc;
+  let pot;
+  if (o.pot_unica) {
+    pot = (P1_KW + P2_KW) * DIAS * o.pot_unico;
+  } else {
+    pot = P1_KW * DIAS * o.pot_p1 + P2_KW * DIAS * o.pot_p2;
+  }
+  const sub = energia - exc + pot + OTROS;
+  const imp = sub * 0.05112696;
+  const iva = (sub + imp) * 0.21;
+  const factura = sub + imp + iva;
+  const bat = o.bat ? BAT_VIRTUAL_VAL : 0;
+  const real = factura - bat;
+  return { energia, exc, pot, otros: OTROS, imp, iva, factura, bat, real };
+}
+
+function toggleDH() {
+  const on = document.getElementById('dh-toggle').checked;
+  document.getElementById('precio-unico').style.display = on ? 'none' : 'grid';
+  document.getElementById('precio-dh').classList.toggle('visible', on);
+}
+
+function togglePot() {
+  const on = document.getElementById('pot-toggle').checked;
+  document.getElementById('pot-unica').style.display = on ? 'none' : 'grid';
+  document.getElementById('pot-dos').classList.toggle('visible', on);
+}
+
+function calcular() {
+  const nombre = document.getElementById('nombre').value.trim() || 'Oferta ' + (ofertas.filter(o=>!o.predefinida).length + 1);
+  const dh = document.getElementById('dh-toggle').checked;
+  const potDos = document.getElementById('pot-toggle').checked;
+  const bat = document.getElementById('bat-toggle').checked;
+
+  let oferta = { nombre, dh, pot_unica: !potDos, exc: 0, bat };
+
+  if (dh) {
+    oferta.kwh_punta = parseFloat(document.getElementById('kwh-punta').value) || 0;
+    oferta.kwh_llano = parseFloat(document.getElementById('kwh-llano').value) || 0;
+    oferta.kwh_valle = parseFloat(document.getElementById('kwh-valle').value) || 0;
+    if (!oferta.kwh_punta && !oferta.kwh_llano && !oferta.kwh_valle) { alert('Introduce los precios punta, llano y valle'); return; }
+  } else {
+    oferta.kwh = parseFloat(document.getElementById('kwh-unico').value) || 0;
+    if (!oferta.kwh) { alert('Introduce el precio del kWh'); return; }
+  }
+
+  if (potDos) {
+    oferta.pot_p1 = parseFloat(document.getElementById('pot-p1').value) || 0;
+    oferta.pot_p2 = parseFloat(document.getElementById('pot-p2').value) || 0;
+  } else {
+    oferta.pot_unico = parseFloat(document.getElementById('pot-unico').value) || 0;
+    if (!oferta.pot_unico) { alert('Introduce el término de potencia'); return; }
+  }
+
+  oferta.exc = parseFloat(document.getElementById('excedente').value) || 0;
+  if (!oferta.exc) { alert('Introduce el precio del excedente'); return; }
+
+  ofertas.push(oferta);
+  renderRanking();
+
+  // limpiar form
+  document.getElementById('nombre').value = '';
+  document.getElementById('kwh-unico').value = '';
+  document.getElementById('excedente').value = '';
+  document.getElementById('pot-unico').value = '';
+  document.getElementById('kwh-punta').value = '';
+  document.getElementById('kwh-llano').value = '';
+  document.getElementById('kwh-valle').value = '';
+  document.getElementById('pot-p1').value = '';
+  document.getElementById('pot-p2').value = '';
+  document.getElementById('dh-toggle').checked = false;
+  document.getElementById('pot-toggle').checked = false;
+  document.getElementById('bat-toggle').checked = false;
+  toggleDH(); togglePot();
+}
+
+function renderRanking() {
+  const container = document.getElementById('ranking-container');
+  const empty = document.getElementById('empty-state');
+  const clearBtn = document.getElementById('clear-btn');
+
+  const ranked = ofertas.map(o => ({ ...o, coste: calcularCoste(o) }))
+                        .sort((a, b) => a.coste - b.coste);
+
+  const mejor = ranked[0].coste;
+  empty.style.display = 'none';
+  clearBtn.style.display = 'block';
+
+  container.innerHTML = '';
+
+  ranked.forEach((o, i) => {
+    const diff = o.coste - mejor;
+    const isPre = o.predefinida;
+    const d = calcularDesglose(o);
+
+    // determinar clase
+    let cls = '';
+    if (i === 0) cls = 'winner';
+    else if (diff > 200) cls = 'danger';
+
+    // alerta potencia alta
+    const potAnual = o.fija ? 0 : (o.pot_unica ? (P1_KW+P2_KW)*DIAS*o.pot_unico : P1_KW*DIAS*o.pot_p1+P2_KW*DIAS*o.pot_p2);
+    const potAlerta = potAnual > 250;
+
+    const card = document.createElement('div');
+    card.className = `result-card ${cls}`;
+    card.onclick = () => {
+      const des = card.querySelector('.desglose');
+      des.classList.toggle('open');
+    };
+
+    // precio energía display
+    let precioEnergia = '';
+    if (o.fija) precioEnergia = 'tarifa plana';
+    else if (o.dh) precioEnergia = `P1:${o.kwh_punta}€ P2:${o.kwh_llano}€ P3:${o.kwh_valle}€`;
+    else precioEnergia = `${o.kwh}€/kWh`;
+
+    const batTag = o.bat ? '<span style="color:var(--green);margin-left:4px">+bat.virtual</span>' : '';
+    const preTag = isPre ? '<span style="opacity:0.5;margin-left:4px">[ref]</span>' : '<span style="color:var(--amber);margin-left:4px">[nuevo]</span>';
+
+    let diffHtml = '';
+    if (i === 0) diffHtml = `<span class="result-diff green">⭐ mejor</span>`;
+    else if (diff < 20) diffHtml = `<span class="result-diff amber">+${Math.round(diff)}€/año</span>`;
+    else diffHtml = `<span class="result-diff red">+${Math.round(diff)}€/año</span>`;
+
+    const alertaHtml = potAlerta ? `<div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace;margin-top:4px">⚠ Potencia muy alta (${Math.round(potAnual)}€/año)</div>` : '';
+
+    card.innerHTML = `
+      <div class="result-pos ${i===0?'gold':''}">${i+1}</div>
+      <div class="result-name">
+        <div class="result-name-text">${o.nombre}${preTag}${batTag}</div>
+        <div class="result-why">${precioEnergia} · exc ${o.exc}€/kWh</div>
+        ${alertaHtml}
+      </div>
+      <div class="result-price">
+        <div class="result-anual ${i===0?'green':diff>150?'red':''}">${Math.round(o.coste)}€/año</div>
+        <div class="result-mes">${(o.coste/12).toFixed(2)}€/mes</div>
+        ${diffHtml}
+      </div>
+      <div class="desglose" onclick="event.stopPropagation()">
+        ${o.fija ? `<div class="desglose-row"><span>Tarifa plana fija</span><span class="pos">${Math.round(o.coste)}€</span></div>` : `
+        <div class="desglose-row"><span>Energía</span><span class="pos">+${Math.round(d.energia)}€</span></div>
+        <div class="desglose-row"><span>Excedentes</span><span class="neg">−${Math.round(d.exc)}€</span></div>
+        <div class="desglose-row"><span>Potencia</span><span class="${potAlerta?'pos':''}">+${Math.round(d.pot)}€</span></div>
+        <div class="desglose-row"><span>Bono social + contador</span><span>+${Math.round(d.otros)}€</span></div>
+        <div class="desglose-row"><span>Imp. electricidad + IVA</span><span class="pos">+${Math.round(d.imp+d.iva)}€</span></div>
+        ${o.bat ? `<div class="desglose-row"><span>Batería virtual</span><span class="neg">−${BAT_VIRTUAL_VAL}€</span></div>` : ''}
+        <div class="desglose-row"><span>COSTE REAL ANUAL</span><span>${Math.round(d.real)}€</span></div>
+        `}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // separador entre buenas y malas
+  const cards = container.querySelectorAll('.result-card');
+  let sepAdded = false;
+  ranked.forEach((o, i) => {
+    if (!sepAdded && (o.coste - mejor) > 100) {
+      const sep = document.createElement('div');
+      sep.className = 'rank-separator';
+      sep.textContent = '— más de 100€/año por encima de la mejor opción —';
+      cards[i].before(sep);
+      sepAdded = true;
+    }
+  });
+}
+
+function clearAll() {
+  ofertas = ofertas.filter(o => o.predefinida);
+  const container = document.getElementById('ranking-container');
+  container.innerHTML = '';
+  document.getElementById('empty-state').style.display = 'block';
+  document.getElementById('clear-btn').style.display = 'none';
+}
+
+// Render inicial con las ofertas predefinidas
+renderRanking();
+</script>
+</body>
+</html>
